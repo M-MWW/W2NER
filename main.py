@@ -269,6 +269,8 @@ if __name__ == '__main__':
     # torch.cuda.manual_seed(config.seed)
     # torch.backends.cudnn.benchmark = False
     # torch.backends.cudnn.deterministic = True
+    # 设置随机种子数
+    # 如果取消注释，可以确保实验的可重复性（但可能会降低训练速度）。
 
     logger.info("Loading Data")
     datasets, ori_data = data_loader.load_data_bert(config)
