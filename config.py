@@ -1,5 +1,9 @@
 import json
-
+# json是个包，主要用于下面的        with open(args.config, "r", encoding="utf-8") as f:
+#             config = json.load(f)
+# 剩下的是配置参数类，例：有个config文件，Config(config），先把config文件转换为python对象，
+# 剩下的相当于 config.dataset = config["dataset"]，提取配置文件config里的文件
+# 再次需改
 
 class Config:
     def __init__(self, args):
