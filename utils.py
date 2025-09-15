@@ -3,7 +3,7 @@ import pickle
 import time
 from collections import defaultdict, deque
 
-
+# 创建并配置一个日志记录器，同时输出到文件和控制台。
 def get_logger(dataset):
     pathname = "./log/{}_{}.txt".format(dataset, time.strftime("%m-%d_%H-%M-%S"))
     logger = logging.getLogger()

@@ -9,7 +9,13 @@ from transformers import AutoTokenizer
 import os
 import utils
 import requests
+# 这行代码设置环境变量，禁用tokenizers的并行处理。这是因为在某些情况下，
+# Hugging Face的tokenizers库与PyTorch的多线程处理可能会产生冲突，导致性能下降或错误。
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+
+# 这段代码创建了一个距离到索引的映射数组。它将连续的距离值离散化为有限的几个类别，
+# 常用于处理序列中词与词之间的相对距离。这种离散化处理可以减少模型需要学习的参数数量。
 
 dis2idx = np.zeros((1000), dtype='int64')
 dis2idx[1] = 1
@@ -166,7 +172,7 @@ def process_bert(data, tokenizer, vocab):
 
     return bert_inputs, grid_labels, grid_mask2d, pieces2word, dist_inputs, sent_length, entity_text
 
-
+# 这个函数用于填充词汇表，遍历数据集中的所有实体，将实体类型添加到词汇表中，并返回实体总数。
 def fill_vocab(vocab, dataset):
     entity_num = 0
     for instance in dataset:

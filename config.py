@@ -3,7 +3,6 @@ import json
 #             config = json.load(f)
 # 剩下的是配置参数类，例：有个config文件，Config(config），先把config文件转换为python对象，
 # 剩下的相当于 config.dataset = config["dataset"]，提取配置文件config里的文件
-# 再次需改
 
 class Config:
     def __init__(self, args):
@@ -48,3 +47,4 @@ class Config:
 
     def __repr__(self):
         return "{}".format(self.__dict__.items())
+    # 可以让我快速查看配置对象的所有设置：
