@@ -125,10 +125,10 @@ def process_bert(data, tokenizer, vocab):
         _bert_inputs = np.array([tokenizer.cls_token_id] + _bert_inputs + [tokenizer.sep_token_id])
 
         length = len(instance['sentence'])
-        _grid_labels = np.zeros((length, length), dtype=np.int)
-        _pieces2word = np.zeros((length, len(_bert_inputs)), dtype=np.bool)
-        _dist_inputs = np.zeros((length, length), dtype=np.int)
-        _grid_mask2d = np.ones((length, length), dtype=np.bool)
+        _grid_labels = np.zeros((length, length), dtype=int)
+        _pieces2word = np.zeros((length, len(_bert_inputs)), dtype=bool)
+        _dist_inputs = np.zeros((length, length), dtype=int)
+        _grid_mask2d = np.ones((length, length), dtype=bool)
 
         if tokenizer is not None:
             start = 0
@@ -183,11 +183,12 @@ def fill_vocab(vocab, dataset):
 
 
 def load_data_bert(config):
-    with open('./data/{}/train.json'.format(config.dataset), 'r', encoding='utf-8') as f:
+    base = f'./data/{config.dataset}'
+    with open(f'{base}/train.json', 'r', encoding='utf-8') as f:
         train_data = json.load(f)
-    with open('./data/{}/dev.json'.format(config.dataset), 'r', encoding='utf-8') as f:
+    with open(f'{base}/dev.json', 'r', encoding='utf-8') as f:
         dev_data = json.load(f)
-    with open('./data/{}/test.json'.format(config.dataset), 'r', encoding='utf-8') as f:
+    with open(f'{base}/test.json', 'r', encoding='utf-8') as f:
         test_data = json.load(f)
 
     tokenizer = AutoTokenizer.from_pretrained(config.bert_name, cache_dir="./cache/")

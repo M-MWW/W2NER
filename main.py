@@ -9,10 +9,30 @@ import transformers
 from sklearn.metrics import precision_recall_fscore_support, f1_score
 from torch.utils.data import DataLoader
 
+import random
 import config
 import data_loader
 import utils
 from model import Model
+
+# import os
+# import torch
+# import torch.distributed as dist
+# from torch.utils.data.distributed import DistributedSampler
+#
+# def init_dist():
+#     if "RANK" in os.environ and "WORLD_SIZE" in os.environ:
+#         dist.init_process_group(backend="nccl")
+#         local_rank = int(os.environ["LOCAL_RANK"])
+#         torch.cuda.set_device(local_rank)
+#         device = torch.device(f"cuda:{local_rank}")
+#         world_size = dist.get_world_size()
+#         rank = dist.get_rank()
+#         return True, device, local_rank, world_size, rank
+#     else:
+#         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+#         return False, device, 0, 1, 0
+#
 
 
 class Trainer(object):
@@ -260,15 +280,85 @@ if __name__ == '__main__':
     logger.info(config)
     config.logger = logger
 
+    # is_dist, device, local_rank, world_size, rank = init_dist()
+    #
+    # logger = utils.get_logger(config.dataset)
+    # if rank == 0:
+    #     logger.info(config)
+    # config.logger = logger
+    #
+    # logger.info("Loading Data")
+    # datasets, ori_data = data_loader.load_data_bert(config)
+    #
+    # train_set, dev_set, test_set = datasets
+    # train_sampler = DistributedSampler(train_set, shuffle=True) if is_dist else None
+    # dev_sampler = DistributedSampler(dev_set, shuffle=False) if is_dist else None
+    # test_sampler = DistributedSampler(test_set, shuffle=False) if is_dist else None
+    #
+    # from torch.utils.data import DataLoader
+    #
+    # train_loader = DataLoader(train_set, batch_size=config.batch_size,
+    #                           collate_fn=data_loader.collate_fn,
+    #                           sampler=train_sampler, shuffle=(train_sampler is None),
+    #                           num_workers=4, drop_last=True, pin_memory=True)
+    # dev_loader = DataLoader(dev_set, batch_size=config.batch_size,
+    #                         collate_fn=data_loader.collate_fn,
+    #                         sampler=dev_sampler, shuffle=False,
+    #                         num_workers=4, pin_memory=True)
+    # test_loader = DataLoader(test_set, batch_size=config.batch_size,
+    #                          collate_fn=data_loader.collate_fn,
+    #                          sampler=test_sampler, shuffle=False,
+    #                          num_workers=4, pin_memory=True)
+    #
+    # # 步数要考虑 world_size（全局总步数）
+    # import math
+    #
+    # steps_per_epoch = math.ceil(len(train_set) / (config.batch_size * world_size))
+    # updates_total = steps_per_epoch * config.epochs
+    #
+    # logger.info("Building Model")
+    # model = Model(config).to(device)
+    #
+    # # DDP 包装
+    # if is_dist:
+    #     model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank], output_device=local_rank)
+    #
+    # trainer = Trainer(model, device, updates_total, rank)  # 见下方 Trainer 改动
+    #
+    # best_f1 = 0
+    # best_test_f1 = 0
+    # for i in range(config.epochs):
+    #     if is_dist:
+    #         train_sampler.set_epoch(i)  # 让每个 epoch 的 shuffle 不同
+    #     if rank == 0:
+    #         logger.info("Epoch: {}".format(i))
+    #     trainer.train(i, train_loader)
+    #     f1 = trainer.eval(i, dev_loader)
+    #     test_f1 = trainer.eval(i, test_loader, is_test=True)
+    #     if rank == 0 and f1 > best_f1:
+    #         best_f1 = f1
+    #         best_test_f1 = test_f1
+    #         trainer.save(config.save_path)
+    #
+    # if rank == 0:
+    #     logger.info("Best DEV F1: {:3.4f}".format(best_f1))
+    #     logger.info("Best TEST F1: {:3.4f}".format(best_test_f1))
+    #     trainer.load(config.save_path)
+    #     trainer.predict("Final", test_loader, ori_data[-1])
+    #
+    # if is_dist:
+    #     dist.destroy_process_group()
+
+
     if torch.cuda.is_available():
         torch.cuda.set_device(args.device)
 
-    # random.seed(config.seed)
-    # np.random.seed(config.seed)
-    # torch.manual_seed(config.seed)
-    # torch.cuda.manual_seed(config.seed)
-    # torch.backends.cudnn.benchmark = False
-    # torch.backends.cudnn.deterministic = True
+    random.seed(config.seed)
+    np.random.seed(config.seed)
+    torch.manual_seed(config.seed)
+    torch.cuda.manual_seed(config.seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
     # 设置随机种子数
     # 如果取消注释，可以确保实验的可重复性（但可能会降低训练速度）。
 
